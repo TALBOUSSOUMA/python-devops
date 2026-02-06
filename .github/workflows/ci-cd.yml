@@ -1,0 +1,75 @@
+name: CI-CD Pipeline
+
+# -----------------------------
+# Déclencheurs du pipeline
+# -----------------------------
+on:
+  push:
+    branches:
+      - develop     # 👈 ta branche de travail
+  pull_request:
+    branches:
+      - develop     # PR vers develop
+
+
+jobs:
+
+  # =============================
+  # JOB 1 — TESTS & QUALITÉ
+  # =============================
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # 1️⃣ Récupérer le code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Installer Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3️⃣ Installer dépendances
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 4️⃣ Lint code
+      - name: Lint with flake8
+        run: |
+          flake8 app
+
+      # 5️⃣ Lancer les tests
+      - name: Run tests
+        env:
+          PYTHONPATH: .
+        run: |
+          pytest tests/ -v
+
+
+  # =============================
+  # JOB 2 — BUILD DOCKER
+  # =============================
+  docker:
+    needs: test      # Lance seulement si tests OK
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # 1️⃣ Checkout
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Build image
+      - name: Build Docker image
+        run: |
+          docker build -t inventory-api .
+
+      # 3️⃣ Vérifier taille (optionnel TP)
+      - name: Check image size
+        run: |
+          docker images inventory-api
