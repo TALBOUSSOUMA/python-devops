@@ -19,7 +19,7 @@ servers = [
 ]
 
 
-# 1️⃣ Health Check
+# 1️ Health Check
 @app.route("/api/v1/health", methods=["GET"])
 def health():
     return jsonify({
@@ -28,7 +28,7 @@ def health():
     }), 200
 
 
-# 2️⃣ Liste des serveurs
+# 2️ Liste des serveurs
 @app.route("/api/v1/servers", methods=["GET"])
 def get_servers():
     return jsonify({
@@ -37,7 +37,7 @@ def get_servers():
     }), 200
 
 
-# 3️⃣ Serveur par ID
+# 3️ Serveur par ID
 @app.route("/api/v1/servers/<int:server_id>", methods=["GET"])
 def get_server(server_id):
     server = next((s for s in servers if s["id"] == server_id), None)
